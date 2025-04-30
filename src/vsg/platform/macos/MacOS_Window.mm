@@ -133,9 +133,12 @@ namespace vsg
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 
-    const NSRect contentRect = [window-> view() frame];
+    NSView *view = (NSView*)window->view();
+    NSWindow *win = [view window];
 
-    auto devicePixelScale = _traits->hdpi ? [window->window() backingScaleFactor] : 1.0f;
+    const NSRect contentRect = [view frame];
+
+    auto devicePixelScale = win && _traits->hdpi ? [win backingScaleFactor] : 1.0f;
 
     uint32_t width = contentRect.size.width * devicePixelScale;
     uint32_t height = contentRect.size.height * devicePixelScale;
@@ -739,19 +742,19 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     }
 
     // create window
-    _window = [[vsg_MacOS_NSWindow alloc] initWithContentRect:contentRect
+    NSWindow *window = [[vsg_MacOS_NSWindow alloc] initWithContentRect:contentRect
                                                               styleMask:styleMask
                                                               backing:NSBackingStoreBuffered
                                                               defer:NO];
 
     vsg_MacOS_NSWindowDelegate* windowDelegate = [[vsg_MacOS_NSWindowDelegate alloc] initWithVsgWindow:this andTraits:traits];
-    [_window setDelegate:windowDelegate];
+    [window setDelegate:windowDelegate];
 
-    [_window setTitle:[NSString stringWithUTF8String:traits->windowTitle.c_str()]];
-    [_window setAcceptsMouseMovedEvents:YES];
-    [_window setRestorable:YES];
-    [_window setOpaque:YES];
-    [_window setBackgroundColor:[NSColor whiteColor]];
+    [window setTitle:[NSString stringWithUTF8String:traits->windowTitle.c_str()]];
+    [window setAcceptsMouseMovedEvents:YES];
+    [window setRestorable:YES];
+    [window setOpaque:YES];
+    [window setBackgroundColor:[NSColor whiteColor]];
 
 
     // create view
@@ -761,18 +764,18 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_view setWantsLayer:YES];
 
     // attach view to window
-    [_window setContentView:_view];
-    _window.initialFirstResponder = _view;
-    [_window makeFirstResponder:_view];
+    [window setContentView:_view];
+    window.initialFirstResponder = _view;
+    [window makeFirstResponder:_view];
 
     if (traits->fullscreen)
     {
         NSRect screenFrame = [[NSScreen mainScreen] frame];
-        [_window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-        [_window toggleFullScreen:NSApp.delegate];
+        [window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [window toggleFullScreen:NSApp.delegate];
     }
 
-    auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
+    auto devicePixelScale = _traits->hdpi ? [window backingScaleFactor] : 1.0f;
     [_metalLayer setContentsScale:devicePixelScale];
 
     // we could get the width and height from the window?
@@ -792,12 +795,12 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
 
    // set the top left corner window position as offset from the top left corner of the screen
     NSPoint pos;
-    int xmax = [[NSScreen mainScreen] frame].size.width - [_window frame].size.width;
-    int ymax = [[NSScreen mainScreen] frame].size.height - [_window frame].size.height;
+    int xmax = [[NSScreen mainScreen] frame].size.width - [window frame].size.width;
+    int ymax = [[NSScreen mainScreen] frame].size.height - [window frame].size.height;
     pos.x = std::clamp(traits->x, 0, xmax);
     pos.y = ymax - std::clamp(traits->y, 0, ymax);
     // show
-    [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width, [_window frame].size.height) display:YES];
+    [window setFrame:CGRectMake(pos.x, pos.y, [window frame].size.width, [window frame].size.height) display:YES];
 
     //vsgMacOS::createApplicationMenus();
 
@@ -859,7 +862,7 @@ void MacOS_Window::resize()
 {
     const NSRect contentRect = [_view frame];
 
-    auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
+    auto devicePixelScale = _traits->hdpi ? [[_view window] backingScaleFactor] : 1.0f;
     //[_metalLayer setContentsScale:devicePixelScale];
 
     _extent2D.width = contentRect.size.width * devicePixelScale;
@@ -888,7 +891,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             NSPoint pos = [anEvent locationInWindow];
 
             // dpi scale as needed
-            auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
+            auto devicePixelScale = _traits->hdpi ? [[_view window] backingScaleFactor] : 1.0f;
             contentRect.size.width = contentRect.size.width * devicePixelScale;
             contentRect.size.height = contentRect.size.height * devicePixelScale;
 

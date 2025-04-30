@@ -19,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 @class NSEvent;
 @class CAMetalLayer;
-@class vsg_MacOS_NSView;
-@class vsg_MacOS_NSWindow;
 
 #import <Cocoa/Cocoa.h>
 
@@ -57,7 +55,7 @@ namespace vsgMacOS
 
         const char* instanceExtensionSurfaceName() const override { return "VK_MVK_macos_surface"; }
 
-        bool valid() const override { return _window; }
+        bool valid() const override { return window(); }
 
         bool visible() const override;
         void show() override;
@@ -70,9 +68,9 @@ namespace vsgMacOS
         bool handleNSEvent(NSEvent* anEvent);
 
         // native objects
-        vsg_MacOS_NSWindow* window() { return _window; };
-        vsg_MacOS_NSView* view() { return _view; };
-        CAMetalLayer* layer() { return _metalLayer; };
+        NSWindow *window() const { return [_view window]; }
+        NSView* view() const { return _view; };
+        CAMetalLayer* layer() const { return _metalLayer; };
 
         vsg::clock::time_point getEventTime(double eventTime)
         {
@@ -87,8 +85,7 @@ namespace vsgMacOS
 
         void _initSurface() override;
 
-        vsg_MacOS_NSWindow* _window;
-        vsg_MacOS_NSView* _view;
+        NSView* _view;
         CAMetalLayer* _metalLayer;
 
         double _first_macos_timestamp = 0;
