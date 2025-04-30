@@ -476,8 +476,12 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
                 free(event);
             }
         }
-        xcb_map_window(_connection, _window);
-        _windowMapped = true;
+
+        if (traits->visible)
+        {
+            xcb_map_window(_connection, _window);
+            _windowMapped = true;
+        }
     }
     else
     {
@@ -547,6 +551,26 @@ bool Xcb_Window::valid() const
 bool Xcb_Window::visible() const
 {
     return _window != 0 && _windowMapped;
+}
+
+void Xcb_Window::show()
+{
+    if (_windowMapped) {
+        return;
+    }
+
+    xcb_map_window(_connection, _window);
+    _windowMapped = true;
+}
+
+void Xcb_Window::hide()
+{
+    if (_windowMapped) {
+        return;
+    }
+
+    xcb_unmap_window(_connection, _window);
+    _windowMapped = false;
 }
 
 void Xcb_Window::releaseWindow()

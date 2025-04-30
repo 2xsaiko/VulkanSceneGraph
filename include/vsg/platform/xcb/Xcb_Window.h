@@ -64,6 +64,8 @@ namespace vsgXcb
         bool valid() const override;
 
         bool visible() const override;
+        void show() override;
+        void hide() override;
 
         void releaseWindow() override;
         void releaseConnection() override;
