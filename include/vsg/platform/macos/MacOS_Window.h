@@ -59,6 +59,10 @@ namespace vsgMacOS
 
         bool valid() const override { return _window; }
 
+        bool visible() const override;
+        void show() override;
+        void hide() override;
+
         bool pollEvents(vsg::UIEvents& events) override;
 
         void resize() override;

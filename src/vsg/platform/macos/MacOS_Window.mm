@@ -800,8 +800,10 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width, [_window frame].size.height) display:YES];
 
     //vsgMacOS::createApplicationMenus();
-    [NSApp activateIgnoringOtherApps:YES];
-    [_window makeKeyAndOrderFront:nil];
+
+    if (traits->visible) {
+        show();
+    }
 
     // manually trigger configure here??
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -818,6 +820,22 @@ void MacOS_Window::_initSurface()
     if (!_instance) _initInstance();
 
     _surface = new vsgMacOS::MacOSSurface(_instance, _view);
+}
+
+bool MacOS_Window::visible() const
+{
+    return [[_view window] isVisible];
+}
+
+void MacOS_Window::show()
+{
+    [NSApp activateIgnoringOtherApps:YES];
+    [[_view window] makeKeyAndOrderFront:nil];
+}
+
+void MacOS_Window::hide()
+{
+    [[_view window] setIsVisible:NO];
 }
 
 bool MacOS_Window::pollEvents(vsg::UIEvents& events)
