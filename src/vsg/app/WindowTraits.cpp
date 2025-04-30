@@ -28,6 +28,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
     width(traits.width),
     height(traits.height),
     fullscreen(traits.fullscreen),
+    visible(traits.visible),
     display(traits.display),
     screenNum(traits.screenNum),
     windowClass(traits.windowClass),

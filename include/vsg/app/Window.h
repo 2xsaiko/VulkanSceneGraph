@@ -41,6 +41,8 @@ namespace vsg
         virtual bool valid() const { return false; }
 
         virtual bool visible() const { return valid(); }
+        virtual void show() {}
+        virtual void hide() {}
 
         /// Release the window as it's owned by a 3rd party windowing object.
         /// Resets the window handle and invalidates the window, preventing Window deletion or closing from deleting the window resource.
